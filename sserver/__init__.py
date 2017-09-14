@@ -1,34 +1,38 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import urlparse, ParseResult, parse_qsl
 
+"""
+@author Cory Forward
+"""
+
 def parse(value: str):
     parsed = parse_qsl(value)
     return dict(parsed)
 
 def get(path):
     def wrapper(method):
-        SimpleRequestHandler.register_get(path, method)
+        SimpleServer.register_get(path, method)
         return method
     return wrapper
 
 def post(path):
     def wrapper(method):
-        SimpleRequestHandler.register_post(path, method)
+        SimpleServer.register_post(path, method)
         return method
     return wrapper
 
-class SimpleRequestHandler(BaseHTTPRequestHandler):
+class SimpleServer(BaseHTTPRequestHandler):
 
     GET_ROUTES = {}
     POST_ROUTES = {}
 
     @staticmethod
     def register_get(path, method):
-        SimpleRequestHandler.GET_ROUTES[path] = method
+        SimpleServer.GET_ROUTES[path] = method
 
     @staticmethod
     def register_post(path, method):
-        SimpleRequestHandler.POST_ROUTES[path] = method
+        SimpleServer.POST_ROUTES[path] = method
 
     def __load_request__(self):
         """
@@ -51,16 +55,16 @@ class SimpleRequestHandler(BaseHTTPRequestHandler):
             except:
                 pass
 
-        if self.path in SimpleRequestHandler.POST_ROUTES:
-            return SimpleRequestHandler.POST_ROUTES[self.path](self)
+        if self.path in SimpleServer.POST_ROUTES:
+            return SimpleServer.POST_ROUTES[self.path](self)
         else:
             return self.on_post(self.path)
 
     def do_GET(self):
         self.__load_request__()
 
-        if self.path in SimpleRequestHandler.GET_ROUTES:
-            return SimpleRequestHandler.GET_ROUTES[self.path](self)
+        if self.path in SimpleServer.GET_ROUTES:
+            return SimpleServer.GET_ROUTES[self.path](self)
         else:
             return self.on_get(self.path)
 

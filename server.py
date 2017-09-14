@@ -1,11 +1,9 @@
 from http.server import HTTPServer
 
-from io import StringIO
-import json
-from base_server import SimpleRequestHandler, get
+from sserver import SimpleServer, get
 
 
-class BattleshipRequestHandler(SimpleRequestHandler):
+class BattleshipRequestHandler(SimpleServer):
 
 
     @get("/name")
