@@ -9,13 +9,15 @@ class HitResult:
 
 class MarkerType:
     WATER = "_"
+    HIT = "X"
+    MISS = "O"
     CARRIER = "C"
     BATTLESHIP = "B"
     CRUISER = "R"
     SUBMARINE = "S"
     DESTROYER = "D"
 
-    __ALL__ = [WATER, CARRIER, BATTLESHIP, CRUISER, SUBMARINE, DESTROYER]
+    __ALL__ = [WATER, CARRIER, BATTLESHIP, CRUISER, SUBMARINE, DESTROYER, HIT, MISS]
 
     MAX_HITS = {
         CARRIER: 5,
@@ -75,7 +77,7 @@ class Board:
             else:
                 return {"result": HitResult.SHIP_HIT}
 
-        self.hits[x][y] = "X"
+        self.hits[x][y] = MarkerType.MISS
         return {"result": HitResult.MISS}
 
     def is_ship_sunk(self, x, y):
@@ -89,6 +91,19 @@ class Board:
 
     def is_position_hit(self, x, y):
         return self.hits[x][y]
+
+    def create_opponent_board(self):
+        board = [["_" for i in range(10)] for i in range(10)]
+        for row in range(10):
+            for col in range(10):
+                marker = self.hits[row][col]
+                if marker == MarkerType.MISS or marker == MarkerType.WATER:
+                    board[row][col] = marker
+                else:
+                    if self.is_ship_sunk(row, col):
+                        board[row][col] = marker
+                    else:
+                        board[row][col] = MarkerType.HIT
 
 def save_board(board: Board, filename):
     serialized_rows = [str.join('', line) for line in board.board]
@@ -119,7 +134,3 @@ def load_board_from_file(file_name):
     except FileNotFoundError:
         print("Invalid board file!")
         raise
-
-def create_opponent_board():
-    board = [["_" for i in range(10)] for i in range(10)]
-    return Board(board)
