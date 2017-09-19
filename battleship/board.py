@@ -37,7 +37,7 @@ class Board:
 
     def __init__(self, board):
         self.board = board
-        self.hits = [[None for i in range(10)] for i in range(10)]
+        self.markers = [[MarkerType.WATER for i in range(10)] for i in range(10)]
         self.ship_hits = self.load_hits()
 
     def load_hits(self):
@@ -49,10 +49,6 @@ class Board:
             MarkerType.DESTROYER: 0
         }
 
-        for row in self.board:
-            for char in row:
-                if char != MarkerType.WATER:
-                    hits[char] += 1
         return hits
 
     def attack(self, x, y):
@@ -62,7 +58,7 @@ class Board:
             return {"result": HitResult.OUT_OF_BOUNDS}
 
         # if this has already been attempted
-        if self.hits[x][y] is not None:
+        if self.markers[x][y] is not MarkerType.WATER:
             return {"result": HitResult.ALREADY_HIT}
 
         # get the marker at this position
@@ -71,13 +67,13 @@ class Board:
         # if it is a ship
         if marker != MarkerType.WATER:
             self.ship_hits[marker] += 1
-            self.hits[x][y] = marker
+            self.markers[x][y] = marker
             if self.ship_hits[marker] == MarkerType.MAX_HITS[marker]:
                 return {"result": HitResult.SHIP_SUNK, "ship_type": marker}
             else:
                 return {"result": HitResult.SHIP_HIT}
 
-        self.hits[x][y] = MarkerType.MISS
+        self.markers[x][y] = MarkerType.MISS
         return {"result": HitResult.MISS}
 
     def is_ship_sunk(self, x, y):
@@ -85,18 +81,15 @@ class Board:
         Determines whether or not a specific marker with a ship
         has been sunk when visually representing the board
         """
-        marker = self.hits[x][y]
+        marker = self.markers[x][y]
         total_hits = self.ship_hits[marker]
         return total_hits == MarkerType.MAX_HITS[marker]
-
-    def is_position_hit(self, x, y):
-        return self.hits[x][y]
 
     def create_opponent_board(self):
         board = [["_" for i in range(10)] for i in range(10)]
         for row in range(10):
             for col in range(10):
-                marker = self.hits[row][col]
+                marker = self.markers[row][col]
                 if marker == MarkerType.MISS or marker == MarkerType.WATER:
                     board[row][col] = marker
                 else:
@@ -104,16 +97,12 @@ class Board:
                         board[row][col] = marker
                     else:
                         board[row][col] = MarkerType.HIT
+        return board
 
-def save_board(board: Board, filename):
-    serialized_rows = [str.join('', line) for line in board.board]
+def serialize_board_to_str(board: [[str]]):
+    serialized_rows = [str.join('', line) for line in board]
     serialized_board = str.join("\n", serialized_rows)
-
-    if os.path.isfile(filename):
-        os.remove(filename)
-
-    with open(filename, "w+") as file:
-        file.write(serialized_board)
+    return serialized_board
 
 def load_board_from_file(file_name):
     try:

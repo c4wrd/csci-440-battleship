@@ -91,7 +91,7 @@ class SimpleServer(BaseHTTPRequestHandler):
         """
         return param in self.get_body_as_form()
 
-    def has_form_values(self, names: str):
+    def has_form_values(self, names: [str]):
         """
         Checks for multiple form values
         :param names: A list of form value names to check for
