@@ -1,0 +1,32 @@
+The message format for this project follows that of the assignment.
+
+Requests to the server url:
+    GET /opponents_board.html:
+        Returns a view of the server's board with ships masked
+        and hits displaying as 'X' unless the ship has been sunk,
+        in which it will display the board name
+
+    GET /own_board.html
+        Returns a view of the server's board with all ships
+
+    POST /
+        Expected form-content: x={x-cord}&y={y-cord}
+        Response codes:
+            200:
+                Returns 200 when a fire to a position was a hit or miss,
+                and the position was not already fired on.
+
+                If it was a miss:
+                    hit=0
+
+                If it returns a ship was hit but not sunk:
+                    hit=1
+
+                If it was a hit, and the ship is now sunk:
+                    hit=1&sunk={ship id}
+
+            410:
+                This position has already been fired on
+
+            404:
+                This position is out of the boundaries of the board

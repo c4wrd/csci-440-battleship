@@ -1,5 +1,3 @@
-import os
-
 class HitResult:
     OUT_OF_BOUNDS = 0
     ALREADY_HIT = 1
@@ -58,7 +56,7 @@ class Board:
             return {"result": HitResult.OUT_OF_BOUNDS}
 
         # if this has already been attempted
-        if self.markers[x][y] is not MarkerType.WATER:
+        if self.markers[x][y] is not MarkerType.WAT:
             return {"result": HitResult.ALREADY_HIT}
 
         # get the marker at this position
